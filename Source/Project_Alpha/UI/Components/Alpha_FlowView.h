@@ -15,6 +15,7 @@ class UPanelWidget;
 class UAlpha_FlowNodeBase;
 class USlateBrushAsset;
 class UAlpha_FlowNodeDataBase;
+struct FRES_DIALOG_GROUP_LIST;
 
 UCLASS()
 class PROJECT_ALPHA_API UAlpha_FlowView : public UUserWidget
@@ -36,6 +37,8 @@ protected:
 
 public:
 	void SetListItems(const TArray<UAlpha_FlowNodeDataBase*>& inListItems);
+
+	void DeserializedData(const TArray<TSharedPtr<FRES_DIALOG_GROUP_LIST>>& inDialogList);
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)

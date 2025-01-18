@@ -6,7 +6,9 @@
 #include "Components/PanelWidget.h"
 #include "Components/CanvasPanelSlot.h"
 
+
 #include "Alpha_FlowNodeBase.h"
+#include "Project_Alpha/Tables/tabledata/tabledata_resource.h"
 
 void UAlpha_FlowView::NativeConstruct()
 {
@@ -75,6 +77,72 @@ void UAlpha_FlowView::SynchronizeProperties()
 	SetListItems(arrListItems);
 
 #endif
+}
+
+void UAlpha_FlowView::DeserializedData(const TArray<TSharedPtr<FRES_DIALOG_GROUP_LIST>>& inDialogList) 
+{
+	TArray<UAlpha_FlowNodeDataBase*> arrListItems;
+	for (TSharedPtr<FRES_DIALOG_GROUP_LIST> iter : inDialogList)
+	{
+		if (false == iter.IsValid())
+			continue;
+
+		UAlpha_FlowRootNodeData* info = NewObject<UAlpha_FlowRootNodeData>();
+		if (false == IsValid(info))
+			continue;
+
+		info->DeserializedData(iter);
+		arrListItems.Add(info);
+	}
+
+	SetListItems(arrListItems);
+
+	///Todo 테스트 코드
+	/*
+
+	for (int32 i = 0; i < Edit_Count; i++)
+	{
+		UAlpha_FlowRootNodeData* info = NewObject<UAlpha_FlowRootNodeData>();
+		if (false == IsValid(info))
+			continue;
+
+		info->ID = i;
+
+		arrListItems.Add(info);
+	}
+
+	for (auto iter : arrListItems)
+	{
+		if (false == IsValid(iter))
+			continue;
+
+		UAlpha_FlowNodeDataBase* parent = iter;
+		for (int32 i = 1; i < Edit_TreeHeight; i++)
+		{
+			UAlpha_FlowNodeDataBase* child = NewObject<UAlpha_FlowNodeDataBase>();
+			if (false == IsValid(child))
+				continue;
+
+
+			child->ID = parent->ID * 100 + i * 10;
+
+			parent->Attach(child);
+
+
+			for (int32 j = 1; j < Edit_TreeWidth; j++)
+			{
+				UAlpha_FlowNodeDataBase* siblings = NewObject<UAlpha_FlowNodeDataBase>();
+				if (false == IsValid(siblings))
+					continue;
+
+				siblings->ID = parent->ID * 100 + i * 10 + j;
+				parent->Attach(siblings);
+			}
+			parent = child;
+		}
+	}*/
+
+	
 }
 
 void UAlpha_FlowView::SetListItems(const TArray<UAlpha_FlowNodeDataBase*>& inListItems)

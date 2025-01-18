@@ -11,6 +11,7 @@ class UImage;
 class UTextBlock;
 class UAlpha_FlowNodeDataBase;
 struct FRES_DIALOG_GROUP_LIST;
+struct FDialogInfo;
 /**
  *
  */
@@ -46,6 +47,9 @@ public:
 	FVector2D GetTopCenter();
 	
 	virtual void SerializedData(TSharedPtr<FRES_DIALOG_GROUP_LIST> outData);
+	void SetData(FDialogInfo& inDialogData);
+
+	int32 GetParentID();
 
 public:
 	TWeakObjectPtr<UAlpha_FlowNodeDataBase> Parent;
@@ -63,7 +67,6 @@ public:
 	FVector2D BottomCenter;
 	FVector2D TopCenter;
 
-
 	int32 ID = 0;
 };
 
@@ -75,11 +78,14 @@ class PROJECT_ALPHA_API UAlpha_FlowRootNodeData : public UAlpha_FlowNodeDataBase
 	GENERATED_BODY()
 public:
 	virtual void SerializedData(TSharedPtr<FRES_DIALOG_GROUP_LIST> outData) override;
+	bool DeserializedData(TSharedPtr<FRES_DIALOG_GROUP_LIST> inTableData);
+
 
 public:
-	
-
 	int32 SubLevelID = 0;
+
+
+	TWeakPtr<FRES_DIALOG_GROUP_LIST> TableData;
 	// 자신의 아이디,
 	// 캐릭터 목록
 	// 서브레벨 아이디

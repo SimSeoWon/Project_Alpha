@@ -110,6 +110,14 @@ FVector2D UAlpha_FlowNodeDataBase::GetTopCenter()
 	return TopCenter;
 }
 
+int32 UAlpha_FlowNodeDataBase::GetParentID()
+{
+	if (false == Parent.IsValid())
+		return 0;
+
+	return Parent->ID;
+}
+
 void UAlpha_FlowNodeDataBase::SerializedData(TSharedPtr<FRES_DIALOG_GROUP_LIST> outData)
 {
 	if (false == outData.IsValid())
@@ -117,7 +125,7 @@ void UAlpha_FlowNodeDataBase::SerializedData(TSharedPtr<FRES_DIALOG_GROUP_LIST> 
 
 	FDialogInfo dialogData;
 	dialogData.ID = ID;
-	dialogData.ParentID = Parent.IsValid() ? Parent->ID : 0;
+	dialogData.ParentID = GetParentID();
 	//dialogData.ScriptList
 	//dialogData.SelectList
 
@@ -138,6 +146,16 @@ void UAlpha_FlowNodeDataBase::SerializedData(TSharedPtr<FRES_DIALOG_GROUP_LIST> 
 	}
 }
 
+void UAlpha_FlowNodeDataBase::SetData(FDialogInfo& inDialogData)
+{
+	ID = inDialogData.ID;
+	//.ParentID; // 부모 노드의 아이디
+	//inDialogData.ScriptList; // 대사집
+	//inDialogData.SelectList; // 선택지
+
+}
+
+
 void UAlpha_FlowRootNodeData::SerializedData(TSharedPtr<FRES_DIALOG_GROUP_LIST> outData)
 {
 	if (false == outData.IsValid())
@@ -149,4 +167,58 @@ void UAlpha_FlowRootNodeData::SerializedData(TSharedPtr<FRES_DIALOG_GROUP_LIST> 
 	outData->ID = ID;
 
 	Super::SerializedData(outData);
+}
+
+bool UAlpha_FlowRootNodeData::DeserializedData(TSharedPtr<FRES_DIALOG_GROUP_LIST> inTableData)
+{
+	if (false == inTableData.IsValid())
+		return false;
+
+	TableData = inTableData;
+
+	SubLevelID = inTableData->SubLevelID;
+	ID = inTableData->ID;
+	//inTableData->CharacterList; // 등장인물
+
+	TArray<UAlpha_FlowNodeDataBase*> parentStack;
+	parentStack.Reserve(5);
+
+	for (FDialogInfo& iter : inTableData->SerializedData)
+	{
+		// 내꺼!
+		if (iter.ID == ID)
+		{
+			SetData(iter);
+			parentStack.Emplace(this);
+			continue;
+		}
+		else 
+		{
+			while (true)
+			{
+				// 등록된 노드가 없다 ㅇㅁㅇ...?!!!
+				if (parentStack.IsEmpty())
+					break;
+
+				// 스택에 가장 마지막에 등록된 노드와 비교한다.
+				if (iter.ParentID != parentStack.Last()->ID)
+				{
+					parentStack.Pop(); // 마지막 등록된 노드 버림
+					continue;
+				}
+
+
+				UAlpha_FlowNodeDataBase* child = NewObject<UAlpha_FlowNodeDataBase>();
+				if (false == IsValid(child))
+					break;
+
+				child->SetData(iter);
+				parentStack.Last()->Attach(child);
+				parentStack.Emplace(child);
+				break;
+			}
+		}
+	}
+
+	return false;
 }
