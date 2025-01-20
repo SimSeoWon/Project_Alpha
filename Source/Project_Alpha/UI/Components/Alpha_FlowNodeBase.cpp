@@ -65,7 +65,6 @@ void UAlpha_FlowNodeDataBase::SetTileObject(UAlpha_FlowNodeBase* inTileObjectPtr
 
 float UAlpha_FlowNodeDataBase::GetTotalWidth()
 {
-
 	if (0 >= ChildrenList.Num())
 		return Width + VecPadding.X;
 
@@ -77,15 +76,39 @@ float UAlpha_FlowNodeDataBase::GetTotalWidth()
 		if (false == IsValid(child))
 			continue;
 
-		width += child->GetTotalWidth();
+		width += child->GetTotalWidth() + VecPadding.X;
 	}
 
 	return width;
 }
 
+
 float UAlpha_FlowNodeDataBase::GetTotalHeight()
 {
-	return Height;
+
+	float height = Height + VecPadding.Y;
+
+	//리프 노드라면..
+	if (0 >= ChildrenList.Num())
+		return height;
+
+	float childrenHeight = 0;
+	for (int32 i = 0; i < ChildrenList.Num(); i++)
+	{
+		
+		UAlpha_FlowNodeDataBase* child = ChildrenList[i];
+		if (false == IsValid(child))
+			continue;
+
+		//자식 노드중 가장 긴거
+		float totalHeight = child->GetTotalHeight();
+		if (childrenHeight >= totalHeight)
+			continue;
+
+		childrenHeight = totalHeight;
+	}
+
+	return height + childrenHeight;
 }
 
 void UAlpha_FlowNodeDataBase::Attach(UAlpha_FlowNodeDataBase* inChild)

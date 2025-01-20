@@ -27,13 +27,12 @@ protected:
 	virtual void NativeDestruct() override;
 	virtual int32 NativePaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const override;
 	virtual void SynchronizeProperties() override;
-
 	void ClearFlowView();
-
 	void OnPaint_Internal(FPaintContext& inContext) const;
 	void DrowTree(FPaintContext& inContext, UAlpha_FlowNodeDataBase* inEntryData) const;
-
 	UAlpha_FlowNodeBase* MakeTreeNode(UAlpha_FlowNodeDataBase* inEntryData, FVector2D vecStartPos);
+
+	void SetPanelSlot();
 
 public:
 	void SetListItems(const TArray<UAlpha_FlowNodeDataBase*>& inListItems);
@@ -95,5 +94,8 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	UPanelWidget* TilePanel = nullptr;
+
+	float TotalWidth = 0.0f;
+	float TotalHeight = 0.0f;
 	
 };

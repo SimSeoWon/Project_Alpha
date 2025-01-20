@@ -63,7 +63,7 @@ void UAlphaEditorView_Dialog::Run()
 		world->GetName(strWorldName);
 		if (false == strWorldName.IsEmpty())
 		{
-			FileName = FString::Printf(TEXT("res_dialog%s"), *strWorldName);
+			FileName = FString::Printf(TEXT("res_dialoggroup%s"), *strWorldName);
 			FilePath = FString::Printf(TEXT("DataTable'/Game/GameData/resourcetable/%s.%s'"), *FileName, *FileName);
 		}
 	}
@@ -123,7 +123,7 @@ void UAlphaEditorView_Dialog::OnClicked_SaveFile()
 		world->GetName(strWorldName);
 		if (false == strWorldName.IsEmpty())
 		{
-			strFileName = FString::Printf(TEXT("res_dialog%s"), *strWorldName);
+			strFileName = FString::Printf(TEXT("res_dialoggroup%s"), *strWorldName);
 			strFilePath = FString::Printf(TEXT("DataTable'/Game/GameData/resourcetable/%s.%s'"), *strFileName, *strFileName);
 		}
 	}

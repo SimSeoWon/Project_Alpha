@@ -80,10 +80,8 @@ public:
 	virtual void SerializedData(TSharedPtr<FRES_DIALOG_GROUP_LIST> outData) override;
 	bool DeserializedData(TSharedPtr<FRES_DIALOG_GROUP_LIST> inTableData);
 
-
 public:
 	int32 SubLevelID = 0;
-
 
 	TWeakPtr<FRES_DIALOG_GROUP_LIST> TableData;
 	// 자신의 아이디,

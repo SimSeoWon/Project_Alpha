@@ -96,53 +96,6 @@ void UAlpha_FlowView::DeserializedData(const TArray<TSharedPtr<FRES_DIALOG_GROUP
 	}
 
 	SetListItems(arrListItems);
-
-	///Todo 테스트 코드
-	/*
-
-	for (int32 i = 0; i < Edit_Count; i++)
-	{
-		UAlpha_FlowRootNodeData* info = NewObject<UAlpha_FlowRootNodeData>();
-		if (false == IsValid(info))
-			continue;
-
-		info->ID = i;
-
-		arrListItems.Add(info);
-	}
-
-	for (auto iter : arrListItems)
-	{
-		if (false == IsValid(iter))
-			continue;
-
-		UAlpha_FlowNodeDataBase* parent = iter;
-		for (int32 i = 1; i < Edit_TreeHeight; i++)
-		{
-			UAlpha_FlowNodeDataBase* child = NewObject<UAlpha_FlowNodeDataBase>();
-			if (false == IsValid(child))
-				continue;
-
-
-			child->ID = parent->ID * 100 + i * 10;
-
-			parent->Attach(child);
-
-
-			for (int32 j = 1; j < Edit_TreeWidth; j++)
-			{
-				UAlpha_FlowNodeDataBase* siblings = NewObject<UAlpha_FlowNodeDataBase>();
-				if (false == IsValid(siblings))
-					continue;
-
-				siblings->ID = parent->ID * 100 + i * 10 + j;
-				parent->Attach(siblings);
-			}
-			parent = child;
-		}
-	}*/
-
-	
 }
 
 void UAlpha_FlowView::SetListItems(const TArray<UAlpha_FlowNodeDataBase*>& inListItems)
@@ -166,6 +119,35 @@ void UAlpha_FlowView::SetListItems(const TArray<UAlpha_FlowNodeDataBase*>& inLis
 
 		vecStartPos.X = vecStartPos.X + entryData->GetTotalWidth() + VecPadding.X;
 	}
+
+	SetPanelSlot();
+}
+
+void UAlpha_FlowView::SetPanelSlot() 
+{
+	TotalWidth = 0.0f;
+	TotalHeight = 0.0f;
+
+
+	
+	for (auto iter : EntryDataList)
+	{
+		if (false == IsValid(iter))
+			continue;
+
+		TotalWidth += iter->GetTotalWidth() + VecPadding.X;
+
+		float totalHeight = iter->GetTotalHeight();
+		if (totalHeight >= TotalHeight)
+		{
+			TotalHeight = totalHeight;
+		}
+	}
+
+
+	UCanvasPanelSlot* canvasSlot = Cast<UCanvasPanelSlot>(RootPanel->Slot);
+	if (IsValid(canvasSlot))
+		canvasSlot->SetSize(FVector2D(TotalWidth, TotalHeight));
 }
 
 UAlpha_FlowNodeBase* UAlpha_FlowView::MakeTreeNode(UAlpha_FlowNodeDataBase* inEntryData, FVector2D vecStartPos)
@@ -174,7 +156,7 @@ UAlpha_FlowNodeBase* UAlpha_FlowView::MakeTreeNode(UAlpha_FlowNodeDataBase* inEn
 		return nullptr;
 
 	FMargin margin{ 0, 0, 0, 0 };
-	FVector2D vecPos(VecPadding.X + vecStartPos.X, VecPadding.Y + vecStartPos.Y);
+	FVector2D vecPos(vecStartPos.X, vecStartPos.Y);
 	inEntryData->Initialized_Paint(vecPos, Width, Height, VecPadding);
 	UAlpha_FlowNodeBase* widget = CreateWidget<UAlpha_FlowNodeBase>(GetWorld(), NodeAsset.LoadSynchronous());
 	if (false == IsValid(widget))
@@ -188,7 +170,6 @@ UAlpha_FlowNodeBase* UAlpha_FlowView::MakeTreeNode(UAlpha_FlowNodeDataBase* inEn
 	widget->NativeOnListItemObjectSet(inEntryData);
 	widget->SetRenderTranslation(inEntryData->VecPostion);
 	FlowNodeList.Emplace(widget);
-
 
 	if (0 >= inEntryData->ChildrenList.Num())
 		return widget;
@@ -247,16 +228,23 @@ void UAlpha_FlowView::OnPaint_Internal(FPaintContext& inContext) const
 
 void UAlpha_FlowView::DrowTree(FPaintContext& inContext, UAlpha_FlowNodeDataBase* inEntryData) const
 {
-
 	if (false == IsValid(inEntryData))
 		return;
 
 	if(inEntryData->ChildrenList.IsEmpty())
 		return;
 
+	UAlpha_FlowNodeDataBase* firstNode = inEntryData->ChildrenList[0];
+	if(false == IsValid(firstNode))
+		return;
+
+	UAlpha_FlowNodeDataBase* lastNode = inEntryData->ChildrenList.Last();
+	if (false == IsValid(lastNode))
+		return;
+
 	FVector2D vecParentBC = inEntryData->GetBottomCenter();
-	FVector2D vecFirstChildTC = inEntryData->ChildrenList[0]->GetTopCenter();
-	FVector2D vecYoungestChildTC = inEntryData->ChildrenList.Last()->GetTopCenter();
+	FVector2D vecFirstChildTC = firstNode->GetTopCenter();
+	FVector2D vecYoungestChildTC = lastNode->GetTopCenter();
 	float halfPadding = VecPadding.Y / 2;
 	
 	FVector2D vecCenterLine1(vecFirstChildTC.X,  vecParentBC.Y + halfPadding);
